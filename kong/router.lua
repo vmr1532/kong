@@ -514,8 +514,17 @@ local function index_route_t(route_t, plain_indexes, prefix_uris, regex_uris,
 
   for _, uri_t in ipairs(route_t.uris) do
     if uri_t.is_prefix then
+      local hosts = {}
+      local uri_t_hosts = utils.shallow_copy(uri_t)
+      for _, host_t in ipairs(route_t.hosts) do
+        insert(hosts, host_t)
+      end
+      if #hosts == 0 then
+        hosts = {{value = nil, wildcard = false}}
+      end
+      uri_t_hosts.hosts = hosts
       plain_indexes.uris[uri_t.value] = true
-      insert(prefix_uris, uri_t)
+      insert(prefix_uris, uri_t_hosts)
 
     else
       insert(regex_uris, uri_t)
@@ -1290,12 +1299,39 @@ function _M.new(routes)
       req_category = bor(req_category, MATCH_RULES.URI)
 
     else
+      local nil_host_match
       for i = 1, #prefix_uris do
         if find(req_uri, prefix_uris[i].value, nil, true) == 1 then
-          hits.uri     = prefix_uris[i].value
-          req_category = bor(req_category, MATCH_RULES.URI)
-          break
+          local matching_host
+          for _, host in ipairs(prefix_uris[i].hosts) do
+            if host.wildcard then
+              local from, _, err = re_find(ctx.req_host, host.regex, "ajo")
+              if err then
+                log(ERR, "could not evaluate wildcard host regex: ", err)
+              end
+              if from then
+                matching_host = true
+                break
+              end
+            else
+              if ctx.req_host == host.value then
+                matching_host = true
+                break
+              elseif not host.value then
+                nil_host_match = nil_host_match or prefix_uris[i].value
+              end
+            end
+          end
+          if matching_host then
+            hits.uri     = prefix_uris[i].value
+            req_category = bor(req_category, MATCH_RULES.URI)
+            break
+          end
         end
+      end
+      if nil_host_match then
+        hits.uri     = nil_host_match
+        req_category = bor(req_category, MATCH_RULES.URI)
       end
 
       for i = 1, #regex_uris do
