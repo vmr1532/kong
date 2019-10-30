@@ -132,12 +132,15 @@ pipeline {
                         RESTY_IMAGE_TAG = 'xenial'
                         KONG_SOURCE_LOCATION = "${env.WORKSPACE}"
                         KONG_BUILD_TOOLS_LOCATION = "${env.WORKSPACE}/../kong-build-tools"
+<<<<<<< HEAD
                         BINTRAY_CREDENTIALS = credentials('bintray-ce')
                         BINTRAY_USR = "${env.BINTRAY_CREDENTIALS_USR}"
                         BINTRAY_KEY = "${env.BINTRAY_CREDENTIALS_PSW}"
                         AWS_ACCESS_KEY = credentials('AWS_ACCESS_KEY')
                         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
                         DOCKER_MACHINE_ARM64_NAME = "jenkins-kong-${env.BUILD_NUMBER}"
+=======
+>>>>>>> 6586a42... [skip travis] skip the problematic builds
                     }
                     steps {
                         sh 'make setup-kong-build-tools'
