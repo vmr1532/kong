@@ -776,7 +776,7 @@ local function mock_reports_server(opts)
   local threads = require "llthreads2.ex"
   local server_port = constants.REPORTS.STATS_PORT
   opts = opts or {}
-
+  ngx.sleep(1)
   local thread = threads.new({
     function(port, host, opts)
       local socket = require "socket"
