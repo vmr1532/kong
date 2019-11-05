@@ -776,9 +776,17 @@ local function mock_reports_server(opts)
   local threads = require "llthreads2.ex"
   local server_port = constants.REPORTS.STATS_PORT
   opts = opts or {}
-  ngx.sleep(1)
   local thread = threads.new({
     function(port, host, opts)
+      local function is_bindable(port)
+        local tcpsock = ngx.socket.tcp()
+        local ok = tcpsock:connect("127.0.0.1", port)
+        if ok then
+          assert(tcpsock:close())
+          return true
+        end
+          return false
+        end
       local socket = require "socket"
       local server = assert(socket.tcp())
       server:settimeout(360)
