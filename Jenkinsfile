@@ -2,7 +2,6 @@ pipeline {
     agent none
     environment{
         KONG_PACKAGE_NAME = 'kong'
-        REPOSITORY_NAME = 'kong-nightly-jenkins'
         REPOSITORY_OS_NAME = "${env.BRANCH_NAME}"
         UPDATE_CACHE = "true"
         DOCKER_CREDENTIALS = credentials('dockerhub')
@@ -126,8 +125,13 @@ pipeline {
                         AWS_ACCESS_KEY = credentials('AWS_ACCESS_KEY')
                         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
                         DOCKER_MACHINE_ARM64_NAME = "jenkins-kong-${env.BUILD_NUMBER}"
+                        REPOSITORY_NAME = """${sh(
+                            returnStdout: true,
+                            script: 'basename "${GIT_URL%.*}"'
+                        )}"""
                     }
                     steps {
+                        sh 'printenv'
                         sh 'make setup-kong-build-tools'
                         sh 'mkdir -p $HOME/bin'
                         sh 'sudo ln -s $HOME/bin/kubectl /usr/local/bin/kubectl'
