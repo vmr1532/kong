@@ -22,6 +22,7 @@ pipeline {
                 KONG_BUILD_TOOLS_LOCATION = "${env.WORKSPACE}/../kong-build-tools"
             }
             steps {
+                sh 'printenv'
                 sh 'make setup-kong-build-tools'
                 sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin || true'
                 dir('../kong-build-tools') { sh 'make kong-test-container' }
