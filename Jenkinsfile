@@ -1,8 +1,6 @@
 pipeline {
     agent none
     environment{
-        KONG_PACKAGE_NAME = 'kong'
-        REPOSITORY_OS_NAME = "${env.BRANCH_NAME}"
         UPDATE_CACHE = "true"
         DOCKER_CREDENTIALS = credentials('dockerhub')
         DOCKER_USERNAME = "${env.DOCKER_CREDENTIALS_USR}"
@@ -21,7 +19,6 @@ pipeline {
                 KONG_BUILD_TOOLS_LOCATION = "${env.WORKSPACE}/../kong-build-tools"
             }
             steps {
-                sh 'printenv'
                 sh 'make setup-kong-build-tools'
                 sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin || true'
                 dir('../kong-build-tools') { sh 'make kong-test-container' }
@@ -127,11 +124,12 @@ pipeline {
                         DOCKER_MACHINE_ARM64_NAME = "jenkins-kong-${env.BUILD_NUMBER}"
                         REPOSITORY_NAME = """${sh(
                             returnStdout: true,
-                            script: 'basename "${GIT_URL%.*}"'
+                            script: 'basename "${GIT_URL%.*}"-nightly'
                         )}"""
+                        KONG_PACKAGE_NAME = 'kong'
+                        REPOSITORY_OS_NAME = "${env.BRANCH_NAME}"
                     }
                     steps {
-                        sh 'printenv'
                         sh 'make setup-kong-build-tools'
                         sh 'mkdir -p $HOME/bin'
                         sh 'sudo ln -s $HOME/bin/kubectl /usr/local/bin/kubectl'
@@ -159,6 +157,12 @@ pipeline {
                         BINTRAY_CREDENTIALS = credentials('bintray-ce')
                         BINTRAY_USR = "${env.BINTRAY_CREDENTIALS_USR}"
                         BINTRAY_KEY = "${env.BINTRAY_CREDENTIALS_PSW}"
+                        REPOSITORY_NAME = """${sh(
+                            returnStdout: true,
+                            script: 'basename "${GIT_URL%.*}"-nightly'
+                        )}"""
+                        KONG_PACKAGE_NAME = 'kong'
+                        REPOSITORY_OS_NAME = "${env.BRANCH_NAME}"
                     }
                     steps {
                         sh 'make setup-kong-build-tools'
@@ -184,6 +188,12 @@ pipeline {
                         BINTRAY_CREDENTIALS = credentials('bintray-ce')
                         BINTRAY_USR = "${env.BINTRAY_CREDENTIALS_USR}"
                         BINTRAY_KEY = "${env.BINTRAY_CREDENTIALS_PSW}"
+                        REPOSITORY_NAME = """${sh(
+                            returnStdout: true,
+                            script: 'basename "${GIT_URL%.*}"-nightly'
+                        )}"""
+                        KONG_PACKAGE_NAME = 'kong'
+                        REPOSITORY_OS_NAME = "${env.BRANCH_NAME}"
                     }
                     steps {
                         sh 'make setup-kong-build-tools'
