@@ -39,8 +39,8 @@ pipeline {
                         KONG_SOURCE_LOCATION = "${env.WORKSPACE}"
                         KONG_BUILD_TOOLS_LOCATION = "${env.WORKSPACE}/../kong-build-tools"
                         BINTRAY_CREDENTIALS = credentials('bintray-ce')
-                        BINTRAY_USR = "${env.BINTRAY_CREDENTIALS_USR}"
-                        BINTRAY_KEY = "${env.BINTRAY_CREDENTIALS_PSW}"
+                        BINTRAY_USR = $BINTRAY_CREDENTIALS_USR
+                        BINTRAY_KEY = $BINTRAY_CREDENTIALS_PSW
                         AWS_ACCESS_KEY = credentials('AWS_ACCESS_KEY')
                         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
                         DOCKER_MACHINE_ARM64_NAME = "jenkins-kong-${env.BUILD_NUMBER}"
@@ -57,9 +57,9 @@ pipeline {
                         sh 'sudo ln -s $HOME/bin/kubectl /usr/local/bin/kubectl'
                         sh 'sudo ln -s $HOME/bin/kind /usr/local/bin/kind'
                         dir('../kong-build-tools'){ sh 'make setup-ci' }
-                        sh 'export KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=trusty BUILDX=false && make nightly-release'
-                        sh 'export KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=xenial CACHE=false && make nightly-release'
-                        sh 'export KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=bionic BUILDX=false && make nightly-release'
+                        sh 'export BINTRAY_USR = "$BINTRAY_CREDENTIALS_USR" BINTRAY_KEY" = "$BINTRAY_CREDENTIALS_PSW" KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=trusty BUILDX=false && make nightly-release'
+                        sh 'export BINTRAY_USR = "$BINTRAY_CREDENTIALS_USR" BINTRAY_KEY" = "$BINTRAY_CREDENTIALS_PSW" KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=xenial CACHE=false && make nightly-release'
+                        sh 'export BINTRAY_USR = "$BINTRAY_CREDENTIALS_USR" BINTRAY_KEY" = "$BINTRAY_CREDENTIALS_PSW" KONG_VERSION=`date +%Y-%m-%d` RESTY_IMAGE_TAG=bionic BUILDX=false && make nightly-release'
                     }
                 }
                 stage('Centos Releases') {
